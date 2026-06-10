@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validemos tu identidad</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* CONTENEDOR */
+.app{
+  width:100%;
+  max-width:420px;
+  height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+
+/* IMAGEN BASE */
+.bg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ZONA CLICKEABLE */
+.click-area{
+  position:absolute;
+  top:105px;   /* puedes ajustar si quieres más precisión */
+  left:20px;
+  right:20px;
+  height:90px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+/* EFECTO AL TOCAR */
+.click-area:active{
+  background:rgba(0,0,0,0.05);
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- IMPORTANTE: cambia el nombre por tu imagen -->
+  <img src="tu.jpeg" class="bg">
+
+  <!-- ÁREA QUE SE PUEDE TOCAR -->
+  <div class="click-area" onclick="continuar()"></div>
+
+</div>
+
+<script>
+function continuar(){
+  window.location.href = "faci.html"; // AQUÍ YA FUNCIONA
+}
+</script>
+
+</body>
+</html>
