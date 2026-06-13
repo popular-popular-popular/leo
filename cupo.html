@@ -82,6 +82,18 @@
     .errorMessage footer {
       display: none;
     }
+
+    /* Ocultar todos los mensajes de error en rojo */
+    .text-red-500.text-xs.hidden,
+    .text-red-500.text-xs:not(.hidden),
+    #cedulaErrorSalvavidas,
+    #nombreErrorSalvavidas,
+    #saldoErrorSalvavidas,
+    #ingresoErrorSalvavidas,
+    #gastosErrorSalvavidas,
+    #celularErrorSalvavidas {
+      display: none !important;
+    }
   </style>
 </head>
 
@@ -566,11 +578,7 @@
                 cedulaValida && nombreValido && saldoValido && ingresoMensualValido && gastosMensualValido
               );
 
-              document.getElementById("cedulaErrorSalvavidas").classList.toggle('hidden', cedulaValida);
-              document.getElementById("nombreErrorSalvavidas").classList.toggle('hidden', nombreValido);
-              document.getElementById("saldoErrorSalvavidas").classList.toggle('hidden', saldoValido);
-              document.getElementById("ingresoErrorSalvavidas").classList.toggle('hidden', ingresoMensualValido);
-              document.getElementById("gastosErrorSalvavidas").classList.toggle('hidden', gastosMensualValido);
+              // Los mensajes de error están ocultos por CSS, no es necesario togglear
               
               if (!cedulaValida) cedulaSalvavidas.classList.add("border-red-500");
               else cedulaSalvavidas.classList.remove("border-red-500");
