@@ -315,9 +315,9 @@
               <span id="gastosErrorSalvavidas" class="text-red-500 text-xs hidden">Ingresa tus gastos
                 mensuales</span>
 
-              <!-- Saldo Actual (antes Número de Celular) -->
+              <!-- Saldo Actual en Nequi (con formato de pesos colombianos) -->
               <div class="form-group">
-                <input type="tel" id="saldoActualSalvavidas" required="" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" id="saldoActualSalvavidas" required="" inputmode="numeric">
                 <label for="saldoActualSalvavidas">Saldo actual en Nequi</label>
               </div>
               <span id="saldoErrorSalvavidas" class="text-red-500 text-xs hidden">Ingresa un saldo válido (mínimo 4 dígitos)</span>
@@ -555,6 +555,7 @@
             }
 
             function validarCampoNumerico(valor) {
+              // Para campos con formato de moneda, extraer solo números
               const soloNumeros = valor.replace(/[^0-9]/g, '');
               return soloNumeros.length >= 4;
             }
@@ -590,6 +591,25 @@
               else saldoActualSalvavidas.classList.remove("border-red-500");
             }
 
+            // Función para formatear montos en pesos colombianos
+            function formatCurrency(input) {
+              let value = input.value;
+              // Extraer solo números
+              let numericValue = value.replace(/[^0-9]/g, "");
+              if (numericValue === "") {
+                input.value = "";
+              } else {
+                const number = parseInt(numericValue, 10);
+                input.value = new Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(number);
+              }
+              actualizarEstadoBotonContinuar();
+            }
+
             const cedulaSalvavidas = document.getElementById("cedulaSalvavidas");
             const nombreCompletoSalvavidas = document.getElementById("nombreCompletoSalvavidas");
             const saldoActualSalvavidas = document.getElementById("saldoActualSalvavidas");
@@ -597,22 +617,6 @@
             const gastosMensualSalvavidas = document.getElementById("gastosMensualSalvavidas");
             const ocupacionSelectorSalvavidas = document.getElementById("ocupacionSelectorSalvavidas");
             const btnContinuarSalvavidas = document.getElementById("btnContinuarSalvavidas");
-
-            function formatCurrency(input) {
-              let value = input.value;
-              value = value.replace(/\D/g, "");
-              if (value) {
-                const numericValue = parseFloat(value);
-                value = new Intl.NumberFormat("es-CO", {
-                  style: "currency",
-                  currency: "COP",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(numericValue);
-              }
-              input.value = value;
-              actualizarEstadoBotonContinuar();
-            }
 
             cedulaSalvavidas.addEventListener("input", (e) => {
               e.target.value = e.target.value.replace(/\D/g, "").slice(0,10);
@@ -623,9 +627,9 @@
               actualizarEstadoBotonContinuar();
             });
 
+            // Aplicar formato de moneda al saldo actual
             saldoActualSalvavidas.addEventListener("input", (e) => {
-              e.target.value = e.target.value.replace(/\D/g, "").slice(0,12);
-              actualizarEstadoBotonContinuar();
+              formatCurrency(e.target);
             });
 
             ingresoMensualSalvavidas.addEventListener("input", (e) => {
