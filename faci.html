@@ -138,7 +138,7 @@ Mantén tu rostro en el círculo<br>
 </div>
 
 <div class="status" id="status">
-🎯 Coloca tu rostro en el círculo
+ Coloca tu rostro en el círculo
 </div>
 
 <script>
@@ -175,7 +175,7 @@ navigator.mediaDevices.getUserMedia({ video: true })
 .then(stream => {
     videoStream = stream;
     video.srcObject = stream;
-    statusText.innerText = "🎯 Coloca tu rostro en el círculo";
+    statusText.innerText = "Coloca tu rostro en el círculo";
 })
 .catch(() => {
     statusText.innerText = "❌ Error cámara";
@@ -193,7 +193,7 @@ function startFaceDetection() {
         if (random > 0.5) { // Rostro detectado
             oval.classList.add("valid");
             warningMessage.classList.remove("show");
-            statusText.innerText = "✅ Rostro detectado - Iniciando grabación...";
+            statusText.innerText = " Rostro detectado - Iniciando grabación...";
             
             faceDetected = true;
             clearInterval(detectionInterval);
